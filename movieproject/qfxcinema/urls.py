@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MovieListView, MovieDetailView, MovieDeleteView, MovieCreateView, MovieUpdateView, MovieSearchView, \
+from .views import MovieListView, MovieDetailView, MovieDeleteView, MovieCreateView, MovieUpdateView, movie_search, \
     rating_create
 from .user_views import UserRegisterView, UserProfileView, UserUpdateView, PasswordChangeView
 from django.contrib.auth.views import LoginView, LogoutView
@@ -16,7 +16,7 @@ app_name = 'movie'
 urlpatterns = [
 
     path('', MovieListView.as_view(), name='movie-list'),
-    path('search/', MovieSearchView, name='movie-search'),
+    path('search/', movie_search, name='movie-search'),
     path('create/', staff_member_required(MovieCreateView.as_view()), name='movie-create'),
     path('<slug:slug>/', MovieDetailView.as_view(), name='movie-detail'),
     path('<slug:slug>/update', staff_member_required(MovieUpdateView.as_view()), name='movie-update'),

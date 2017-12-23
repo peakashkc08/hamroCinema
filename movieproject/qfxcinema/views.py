@@ -1,8 +1,8 @@
+from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Movie, MovieRating
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
-from django.db.models import Q
 import datetime
 from django.http import JsonResponse
 
@@ -21,19 +21,14 @@ class MovieListView(ListView):
         return context
 
 
-class MovieSearchView(ListView):
-    template_name = 'qfxcinema/home.html'
-    context_object_name = 'search_movies'
+def movie_search(request):
+    name = request.GET.get('name')
+    movies = Movie.objects.filter(name__icontains=name)
+    context = {
 
-    def get_queryset(self):
-        queryset_list = Movie.objects.all()
-        query = self.request.GET.get("name")
-        if query:
-            queryset_list = Movie.objects.all().filter(
-                Q(name__icontains=query) |
-                Q(genre__name__icontains=query) |
-                Q(tag__tag_name__icontains=query)
-            ).distinct()  # distinct prevents items form duplication
+        'Movies': movies}
+
+    return render(request, 'qfxcinema/home.html', context)
 
 
 class MovieDetailView(DetailView):
@@ -78,17 +73,16 @@ class MovieDeleteView(DeleteView):
 
 
 def rating_create(request):
+    if request.method == "POST":
+        slug = request.POST['slug']
+        user = request.POST['user']
+        rating = request.POST['rating']
+        movie_object = Movie.objects.get(slug=slug)
+        user_object = User.objects.get(username=user)
+        rating_object = MovieRating.objects.create(movie=movie_object, user=user_object, rating=rating)
+        rating_object.save()
+        data = {
 
-        if request.method == "POST":
-            slug = request.POST['slug']
-            user = request.POST['user']
-            rating = request.POST['rating']
-            movie_object = Movie.objects.get(slug=slug)
-            user_object = User.objects.get(username=user)
-            rating_object = MovieRating.objects.create(movie=movie_object, user=user_object, rating=rating)
-            rating_object.save()
-            data = {
+            'rating': rating}
 
-                'rating': rating}
-
-            return JsonResponse(data)
+        return JsonResponse(data)
