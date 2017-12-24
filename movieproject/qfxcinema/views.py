@@ -26,7 +26,8 @@ def movie_search(request):
     movies = Movie.objects.filter(name__icontains=name)
     context = {
 
-        'Movies': movies}
+        'Movies': movies
+    }
 
     return render(request, 'qfxcinema/home.html', context)
 
@@ -73,16 +74,17 @@ class MovieDeleteView(DeleteView):
 
 
 def rating_create(request):
-    if request.method == "POST":
-        slug = request.POST['slug']
-        user = request.POST['user']
-        rating = request.POST['rating']
-        movie_object = Movie.objects.get(slug=slug)
-        user_object = User.objects.get(username=user)
-        rating_object = MovieRating.objects.create(movie=movie_object, user=user_object, rating=rating)
-        rating_object.save()
-        data = {
 
-            'rating': rating}
+        if request.method == "POST":
+            slug = request.POST['slug']
+            user = request.POST['user']
+            rating = request.POST['rating']
+            movie_object = Movie.objects.get(slug=slug)
+            user_object = User.objects.get(username=user)
+            rating_object = MovieRating.objects.create(movie=movie_object, user=user_object, rating=rating)
+            rating_object.save()
+            data = {
 
-        return JsonResponse(data)
+                'rating': rating}
+
+            return JsonResponse(data)
